@@ -818,6 +818,35 @@ app.post('/api/404-logs/public', (req, res) => {
   return res.json({ logged: true });
 });
 
+app.get('/api/public/homepage', async (req, res) => {
+  try {
+    const [pageContents, services, projects, testimonials, faqs, blogs, website, popups] = await Promise.all([
+      prisma.pageContent.findMany({}),
+      prisma.service.findMany({ where: { isEnabled: true }, orderBy: { orderIndex: 'asc' } }),
+      prisma.project.findMany({ orderBy: { orderIndex: 'asc' } }),
+      prisma.testimonial.findMany({ where: { isApproved: true } }),
+      prisma.fAQ.findMany({ where: { isEnabled: true }, orderBy: { orderIndex: 'asc' } }),
+      prisma.blogPost.findMany({ where: { status: 'PUBLISHED' }, orderBy: { createdAt: 'desc' } }),
+      prisma.websiteSettings.findUnique({ where: { id: 'default' } }),
+      prisma.popup.findMany({ where: { isEnabled: true } })
+    ]);
+
+    return res.json({
+      pageContents,
+      services,
+      projects,
+      testimonials,
+      faqs,
+      blogs,
+      website,
+      popups
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to load homepage data' });
+  }
+});
+
 // XML/TXT Generators (Sitemap, Robots)
 app.get('/sitemap.xml', async (req, res) => {
   res.header('Content-Type', 'application/xml');

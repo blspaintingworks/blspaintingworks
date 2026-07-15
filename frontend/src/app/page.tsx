@@ -83,6 +83,8 @@ export default function PublicHomepage() {
     'hero', 'about', 'gallery', 'services', 'testimonials', 'faq', 'contact'
   ]);
 
+  const [loading, setLoading] = useState(true);
+
   // Lead form state
   const [leadForm, setLeadForm] = useState({
     name: '',
@@ -126,90 +128,42 @@ export default function PublicHomepage() {
   };
 
   useEffect(() => {
-    // 1. Fetch layout section ordering
-    fetch(`${BACKEND_URL}/api/page-content`)
+    fetch(`${BACKEND_URL}/api/public/homepage`)
       .then(res => res.json())
       .then(data => {
-        if (data && data.length > 0) {
-          // Sort sections by orderIndex
-          const sorted = [...data].sort((a, b) => a.orderIndex - b.orderIndex);
-          const newOrder = sorted.filter(s => s.isEnabled).map(s => s.sectionName);
-          if (newOrder.length > 0) setSectionsOrder(newOrder);
+        if (data) {
+          if (data.pageContents && data.pageContents.length > 0) {
+            const sorted = [...data.pageContents].sort((a, b) => a.orderIndex - b.orderIndex);
+            const newOrder = sorted.filter(s => s.isEnabled).map(s => s.sectionName);
+            if (newOrder.length > 0) setSectionsOrder(newOrder);
 
-          // Find hero and about contents
-          const heroSec = data.find((s: any) => s.sectionName === 'hero');
-          if (heroSec) setHero(JSON.parse(heroSec.contentJson));
+            const heroSec = data.pageContents.find((s: any) => s.sectionName === 'hero');
+            if (heroSec) setHero(JSON.parse(heroSec.contentJson));
 
-          const aboutSec = data.find((s: any) => s.sectionName === 'about');
-          if (aboutSec) setAbout(JSON.parse(aboutSec.contentJson));
-        }
-      })
-      .catch(() => {});
+            const aboutSec = data.pageContents.find((s: any) => s.sectionName === 'about');
+            if (aboutSec) setAbout(JSON.parse(aboutSec.contentJson));
+          }
 
-    // 2. Fetch services
-    fetch(`${BACKEND_URL}/api/services`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) setServices(data.filter((s: any) => s.isEnabled));
-      })
-      .catch(() => {});
+          if (data.services) setServices(data.services);
+          if (data.projects) setProjects(data.projects);
+          if (data.testimonials) setTestimonials(data.testimonials);
+          if (data.faqs) setFaqs(data.faqs);
+          if (data.blogs) setBlogs(data.blogs);
+          if (data.website) setWebsite(data.website);
 
-    // 3. Fetch projects
-    fetch(`${BACKEND_URL}/api/projects`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) setProjects(data);
-      })
-      .catch(() => {});
-
-    // 4. Fetch testimonials
-    fetch(`${BACKEND_URL}/api/testimonials`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) setTestimonials(data.filter((t: any) => t.isApproved));
-      })
-      .catch(() => {});
-
-    // 5. Fetch FAQs
-    fetch(`${BACKEND_URL}/api/faqs`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) setFaqs(data.filter((f: any) => f.isEnabled));
-      })
-      .catch(() => {});
-
-    // 6. Fetch Blogs
-    fetch(`${BACKEND_URL}/api/blogs`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) setBlogs(data.filter((b: any) => b.status === 'PUBLISHED'));
-      })
-      .catch(() => {});
-
-    // 7. Fetch active promotional popup
-    fetch(`${BACKEND_URL}/api/popups`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.length > 0) {
-          const active = data.find((p: any) => p.isEnabled);
-          if (active) {
-            setPopup(active);
-            // Delay popup by 2 seconds
-            setTimeout(() => {
-              setShowPopup(true);
-            }, 2000);
+          if (data.popups && data.popups.length > 0) {
+            const active = data.popups.find((p: any) => p.isEnabled);
+            if (active) {
+              setPopup(active);
+              setTimeout(() => {
+                setShowPopup(true);
+              }, 2000);
+            }
           }
         }
       })
-      .catch(() => {});
-
-    // 8. Fetch website general settings
-    fetch(`${BACKEND_URL}/api/settings/website`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) setWebsite(data);
-      })
-      .catch(() => {});
+      .catch((err) => console.error('Failed to load homepage data:', err))
+      .finally(() => setLoading(false));
   }, []);
 
   const translateToTelugu = (name: string, phone: string, services: string[], englishMsg: string) => {
@@ -359,6 +313,21 @@ export default function PublicHomepage() {
       default: return <Paintbrush className="h-8 w-8 text-secondary" />;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-6">
+        <div className="relative w-16 h-16 flex items-center justify-center">
+          <div className="absolute inset-0 border-4 border-slate-200 border-t-secondary rounded-full animate-spin"></div>
+          <Paintbrush className="h-6 w-6 text-accent animate-pulse" />
+        </div>
+        <div className="text-center space-y-2">
+          <h2 className="font-heading font-bold text-xl text-slate-800 animate-pulse">BLS Painting Works</h2>
+          <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase">Loading Premium Experience...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
