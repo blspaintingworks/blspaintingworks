@@ -62,7 +62,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2 font-heading font-bold text-2xl text-slate-900">
           {theme.logoUrl ? (
-            <img src={`http://localhost:5000${theme.logoUrl}`} alt={settings.businessName} className="h-10 object-contain max-w-[180px]" />
+            <img src={`${BACKEND_URL}${theme.logoUrl}`} alt={settings.businessName} className="h-10 object-contain max-w-[180px]" />
           ) : (
             <>
               <div className="p-2 bg-gradient-to-tr from-secondary to-accent rounded-lg shadow-sm">

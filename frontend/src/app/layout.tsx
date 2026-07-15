@@ -26,9 +26,10 @@ async function getThemeAndSettings() {
   };
 
   try {
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const [themeRes, siteRes] = await Promise.all([
-      fetch('http://localhost:5000/api/settings/theme', { cache: 'no-store' }),
-      fetch('http://localhost:5000/api/settings/website', { cache: 'no-store' })
+      fetch(`${BACKEND_URL}/api/settings/theme`, { cache: 'no-store' }),
+      fetch(`${BACKEND_URL}/api/settings/website`, { cache: 'no-store' })
     ]);
     
     if (themeRes.ok && siteRes.ok) {

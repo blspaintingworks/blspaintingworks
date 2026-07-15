@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiRequest } from '@/utils/api';
+import { apiRequest, BACKEND_URL } from '@/utils/api';
 import { 
   LayoutDashboard, Settings, UserCheck, Layers, FileText, Image, 
   MessageSquare, HelpCircle, PhoneCall, AlertTriangle, ShieldCheck, 
@@ -280,6 +280,34 @@ export default function AdminPage() {
     } catch (err) {}
   };
 
+  // Popup / Offers Manager
+  const handleSavePopup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const endpoint = editingItem ? `/popups/${editingItem.id}` : '/popups';
+    const method = editingItem ? 'PUT' : 'POST';
+    try {
+      await apiRequest(endpoint, {
+        method,
+        body: JSON.stringify(popupForm)
+      });
+      setEditingItem(null);
+      setPopupForm({ name: '', type: 'BANNER', title: '', content: '', imageUrl: '', ctaText: '', ctaUrl: '', isEnabled: false });
+      loadAllCmsData();
+    } catch (err) {}
+  };
+
+  const handleTogglePopup = async (id: string, isEnabled: boolean) => {
+    try {
+      const target = popups.find(p => p.id === id);
+      if (!target) return;
+      await apiRequest(`/popups/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ ...target, isEnabled })
+      });
+      loadAllCmsData();
+    } catch (err) {}
+  };
+
   // Google reviews approval toggle
   const handleToggleReviewApproval = async (id: string, isApproved: boolean) => {
     try {
@@ -450,6 +478,7 @@ export default function AdminPage() {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
     { id: 'hero', name: 'Homepage Editor', icon: <Layers className="h-4 w-4" /> },
+    { id: 'popups', name: 'Offers / Popups', icon: <MessageSquare className="h-4 w-4" /> },
     { id: 'services', name: 'Services Manager', icon: <Layers className="h-4 w-4" /> },
     { id: 'projects', name: 'Gallery Manager', icon: <Image className="h-4 w-4" /> },
     { id: 'leads', name: 'Quote Requests', icon: <PhoneCall className="h-4 w-4" /> },
@@ -569,6 +598,210 @@ export default function AdminPage() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Offers & Popups tab */}
+        {activeTab === 'popups' && (
+          <div className="space-y-8 animate-fadeIn">
+            <div className="flex justify-between items-center">
+              <h1 className="font-heading font-bold text-3xl text-slate-800">Promotional Offers & Popups</h1>
+              {!editingItem && (
+                <button
+                  onClick={() => {
+                    setEditingItem({ id: 'new' });
+                    setPopupForm({ name: '', type: 'BANNER', title: '', content: '', imageUrl: '', ctaText: '', ctaUrl: '', isEnabled: false });
+                  }}
+                  className="px-4 py-2.5 bg-secondary text-white font-bold rounded-lg flex items-center space-x-2 text-xs shadow-md hover:bg-opacity-95"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Create Popup Offer</span>
+                </button>
+              )}
+            </div>
+
+            {editingItem ? (
+              <div className="glass p-8 rounded-xl bg-white border border-slate-200/50 shadow-sm max-w-3xl space-y-6">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                  <h3 className="font-heading font-bold text-xl text-slate-800">
+                    {editingItem.id === 'new' ? 'Create New Offer Popup' : 'Edit Offer Popup'}
+                  </h3>
+                  <button onClick={() => setEditingItem(null)} className="text-slate-400 hover:text-slate-600">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSavePopup} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-500">Offer Name / Identifier</label>
+                      <input
+                        type="text"
+                        required
+                        value={popupForm.name}
+                        onChange={(e) => setPopupForm({ ...popupForm, name: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 text-sm"
+                        placeholder="e.g. Summer Special"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-500">Popup Type</label>
+                      <select
+                        value={popupForm.type}
+                        onChange={(e) => setPopupForm({ ...popupForm, type: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 text-sm"
+                      >
+                        <option value="BANNER">Top Promo Banner</option>
+                        <option value="MODAL">Center Modal Overlay</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-500">Offer Title Heading</label>
+                    <input
+                      type="text"
+                      required
+                      value={popupForm.title}
+                      onChange={(e) => setPopupForm({ ...popupForm, title: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 text-sm"
+                      placeholder="e.g. Summer Painting Special!"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-500">Offer Body Content Description</label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={popupForm.content}
+                      onChange={(e) => setPopupForm({ ...popupForm, content: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 text-sm"
+                      placeholder="Describe the offer (e.g. Get 15% off all residential exterior painting bookings this July...)"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-500">CTA Button Text</label>
+                      <input
+                        type="text"
+                        value={popupForm.ctaText}
+                        onChange={(e) => setPopupForm({ ...popupForm, ctaText: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 text-sm"
+                        placeholder="e.g. Claim Discount"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-500">CTA Button Action URL</label>
+                      <input
+                        type="text"
+                        value={popupForm.ctaUrl}
+                        onChange={(e) => setPopupForm({ ...popupForm, ctaUrl: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 text-sm"
+                        placeholder="e.g. #quote"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-500">Promo Image URL (Optional)</label>
+                    <input
+                      type="text"
+                      value={popupForm.imageUrl}
+                      onChange={(e) => setPopupForm({ ...popupForm, imageUrl: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 text-sm"
+                      placeholder="e.g. /uploads/general/banner.png"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-3 pt-2">
+                    <input
+                      type="checkbox"
+                      id="isEnabled"
+                      checked={popupForm.isEnabled}
+                      onChange={(e) => setPopupForm({ ...popupForm, isEnabled: e.target.checked })}
+                      className="h-4 w-4 text-secondary border-slate-300 rounded"
+                    />
+                    <label htmlFor="isEnabled" className="text-sm font-semibold text-slate-700">
+                      Enable this offer popup immediately on the site
+                    </label>
+                  </div>
+
+                  <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setEditingItem(null)}
+                      className="px-5 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-lg text-xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 bg-secondary text-white font-bold rounded-lg text-xs shadow-md"
+                    >
+                      Save Offer Configuration
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <div className="glass p-6 rounded-xl bg-white border border-slate-200/50 shadow-sm space-y-4">
+                {popups.length === 0 ? (
+                  <div className="text-center py-12 text-slate-400">
+                    No offer popups configured yet. Click "Create Popup Offer" above.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {popups.map((p) => (
+                      <div key={p.id} className="py-4 flex justify-between items-center first:pt-0 last:pb-0">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-bold text-slate-800">{p.name || 'Untitled Offer'}</h4>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                              {p.type}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 mt-1">{p.title}</p>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          {/* Toggle Switch */}
+                          <button
+                            onClick={() => handleTogglePopup(p.id, !p.isEnabled)}
+                            className="focus:outline-none"
+                          >
+                            {p.isEnabled ? (
+                              <ToggleRight className="h-8 w-8 text-green-500" />
+                            ) : (
+                              <ToggleLeft className="h-8 w-8 text-slate-400" />
+                            )}
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              setEditingItem(p);
+                              setPopupForm({
+                                name: p.name || '',
+                                type: p.type || 'BANNER',
+                                title: p.title || '',
+                                content: p.content || '',
+                                imageUrl: p.imageUrl || '',
+                                ctaText: p.ctaText || '',
+                                ctaUrl: p.ctaUrl || '',
+                                isEnabled: p.isEnabled || false
+                              });
+                            }}
+                            className="p-2 border border-slate-200 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -722,7 +955,7 @@ export default function AdminPage() {
                 {services.map((item) => (
                   <div key={item.id} className="glass p-5 rounded-xl flex justify-between items-center bg-white border border-slate-200/50 shadow-sm">
                     <div className="flex items-center space-x-4">
-                      <img src={item.imageUrl.startsWith('http') ? item.imageUrl : `http://localhost:5000${item.imageUrl}`} alt={item.title} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                      <img src={item.imageUrl.startsWith('http') ? item.imageUrl : `${BACKEND_URL}${item.imageUrl}`} alt={item.title} className="w-16 h-16 rounded-lg object-cover shrink-0" />
                       <div>
                         <h4 className="font-heading font-bold text-lg text-slate-800">{item.title}</h4>
                         <p className="text-xs text-slate-500 line-clamp-2 max-w-sm">{item.description}</p>
@@ -851,7 +1084,7 @@ export default function AdminPage() {
                       {JSON.parse(serviceForm.imageUrlsJson || '[]').length > 0 ? (
                         JSON.parse(serviceForm.imageUrlsJson || '[]').map((imgUrl: string, idx: number) => (
                           <div key={idx} className="relative w-12 h-12 rounded-lg border border-slate-200 overflow-hidden bg-slate-100 group">
-                            <img src={`http://localhost:5000${imgUrl}`} className="w-full h-full object-cover" />
+                            <img src={`${BACKEND_URL}${imgUrl}`} className="w-full h-full object-cover" />
                             <button
                               type="button"
                               onClick={() => {
@@ -928,7 +1161,7 @@ export default function AdminPage() {
                 {projects.map((proj) => (
                   <div key={proj.id} className="glass p-5 rounded-xl flex justify-between items-center bg-white border border-slate-200/50 shadow-sm animate-fadeIn">
                     <div className="flex items-center space-x-4">
-                      <img src={proj.afterImageUrl.startsWith('http') ? proj.afterImageUrl : `http://localhost:5000${proj.afterImageUrl}`} alt={proj.title} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                      <img src={proj.afterImageUrl.startsWith('http') ? proj.afterImageUrl : `${BACKEND_URL}${proj.afterImageUrl}`} alt={proj.title} className="w-16 h-16 rounded-lg object-cover shrink-0" />
                       <div>
                         <h4 className="font-heading font-bold text-lg text-slate-800">{proj.title}</h4>
                         <span className="text-[10px] px-2 py-0.5 bg-slate-100 rounded-full font-bold text-accent uppercase">{proj.albumName}</span>
@@ -1061,7 +1294,7 @@ export default function AdminPage() {
                 {blogs.map((b) => (
                   <div key={b.id} className="glass p-5 rounded-xl flex justify-between items-center bg-white border border-slate-200/50 shadow-sm animate-fadeIn">
                     <div className="flex items-center space-x-4">
-                      <img src={b.featuredImageUrl.startsWith('http') ? b.featuredImageUrl : `http://localhost:5000${b.featuredImageUrl}`} alt={b.title} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                      <img src={b.featuredImageUrl.startsWith('http') ? b.featuredImageUrl : `${BACKEND_URL}${b.featuredImageUrl}`} alt={b.title} className="w-16 h-16 rounded-lg object-cover shrink-0" />
                       <div>
                         <h4 className="font-heading font-bold text-lg text-slate-800">{b.title}</h4>
                         <span className="text-[10px] px-2 py-0.5 bg-slate-100 rounded-full font-bold text-accent uppercase">{b.category}</span>
@@ -1187,7 +1420,7 @@ export default function AdminPage() {
                 <div key={m.id} className="glass p-3 rounded-lg flex flex-col justify-between space-y-3 relative bg-white border border-slate-200/50 shadow-sm group">
                   <div className="h-28 rounded-md overflow-hidden bg-slate-100 relative border border-slate-200/40">
                     {m.filetype.startsWith('image/') ? (
-                      <img src={m.filepath.startsWith('http') ? m.filepath : `http://localhost:5000${m.filepath}`} alt={m.filename} className="w-full h-full object-cover" />
+                      <img src={m.filepath.startsWith('http') ? m.filepath : `${BACKEND_URL}${m.filepath}`} alt={m.filename} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-500 font-bold bg-slate-100">
                         {m.filetype}

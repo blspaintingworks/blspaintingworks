@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+import { BACKEND_URL } from '@/utils/api';
+
 export default function BlogPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/blogs')
+    fetch(`${BACKEND_URL}/api/blogs`)
       .then(res => res.json())
       .then(data => {
         if (data) setBlogs(data.filter((b: any) => b.status === 'PUBLISHED'));
@@ -19,7 +21,7 @@ export default function BlogPage() {
   const getImageUrl = (url: string) => {
     if (!url) return '';
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5000${url}`;
+      return `${BACKEND_URL}${url}`;
     }
     return url;
   };
