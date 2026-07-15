@@ -287,6 +287,36 @@ export default function AdminPage() {
     }
   };
 
+  // Testimonials / Ratings Manager
+  const handleSaveTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const endpoint = editingItem ? `/testimonials/${editingItem.id}` : '/testimonials';
+    const method = editingItem ? 'PUT' : 'POST';
+    try {
+      await apiRequest(endpoint, {
+        method,
+        body: JSON.stringify(testimonialForm)
+      });
+      setEditingItem(null);
+      setTestimonialForm({ customerName: '', customerRole: 'Homeowner', customerPhotoUrl: '', content: '', rating: 5, isFeatured: false, isApproved: true });
+      loadAllCmsData();
+      alert('Testimonial saved successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save testimonial.');
+    }
+  };
+
+  const handleDeleteTestimonial = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this testimonial?')) return;
+    try {
+      await apiRequest(`/testimonials/${id}`, { method: 'DELETE' });
+      loadAllCmsData();
+      alert('Testimonial deleted successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete testimonial.');
+    }
+  };
+
   // Quote Request / Lead Status & Notes
   const handleUpdateLead = async (id: string, status: string, notes: string) => {
     try {
@@ -497,7 +527,6 @@ export default function AdminPage() {
     );
   }
 
-  // Dashboard layout tabs selection
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
     { id: 'hero', name: 'Homepage Editor', icon: <Layers className="h-4 w-4" /> },
