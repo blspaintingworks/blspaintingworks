@@ -6,11 +6,7 @@
   "scripts": {
     "dev": "ts-node src/index.ts",
     "build": "npx prisma generate && tsc",
-<<<<<<< HEAD
     "start": "npx prisma db push && node dist/index.js",
-=======
-    "start": "node dist/index.js",
->>>>>>> b6baaf76a89b777919fd183b514af184827e0dd8
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts"
@@ -23,9 +19,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1"
-  },
-  "devDependencies": {
+    "multer": "^1.4.5-lts.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
@@ -36,5 +30,6 @@
     "prisma": "^5.12.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
-  }
+  },
+  "devDependencies": {}
 }
