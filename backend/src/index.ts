@@ -839,7 +839,7 @@ app.post('/api/404-logs/public', (req, res) => {
 
 app.get('/api/public/homepage', async (req, res) => {
   try {
-    const [pageContents, services, projects, testimonials, faqs, blogs, website, popups] = await Promise.all([
+    const [pageContents, services, projects, testimonials, faqs, blogs, website, popups, googleReviews] = await Promise.all([
       prisma.pageContent.findMany({}),
       prisma.service.findMany({ where: { isEnabled: true }, orderBy: { orderIndex: 'asc' } }),
       prisma.project.findMany({ orderBy: { orderIndex: 'asc' } }),
@@ -847,7 +847,8 @@ app.get('/api/public/homepage', async (req, res) => {
       prisma.fAQ.findMany({ where: { isEnabled: true }, orderBy: { orderIndex: 'asc' } }),
       prisma.blogPost.findMany({ where: { status: 'PUBLISHED' }, orderBy: { createdAt: 'desc' } }),
       prisma.websiteSettings.findUnique({ where: { id: 'default' } }),
-      prisma.popup.findMany({ where: { isEnabled: true } })
+      prisma.popup.findMany({ where: { isEnabled: true } }),
+      prisma.googleReview.findMany({ where: { isApproved: true } })
     ]);
 
     return res.json({
@@ -858,7 +859,8 @@ app.get('/api/public/homepage', async (req, res) => {
       faqs,
       blogs,
       website,
-      popups
+      popups,
+      googleReviews
     });
   } catch (err) {
     console.error(err);
