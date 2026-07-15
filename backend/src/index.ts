@@ -9,10 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import { authenticateJWT, requireRole, logActivity, AuthenticatedRequest } from './middleware/auth';
 import { uploadMediaFile, deleteMediaFile } from './utils/cloudinary';
-<<<<<<< HEAD
 import { autoSeedDatabase } from './utils/autoseed';
-=======
->>>>>>> b6baaf76a89b777919fd183b514af184827e0dd8
 
 const prisma = new PrismaClient();
 const app = express();
@@ -838,7 +835,6 @@ Disallow: /api
 Sitemap: https://blspaintingworks.com/sitemap.xml`);
 });
 
-<<<<<<< HEAD
 app.listen(PORT, async () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
   try {
@@ -846,8 +842,4 @@ app.listen(PORT, async () => {
   } catch (err) {
     console.error('Auto-seeding failed on startup:', err);
   }
-=======
-app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
->>>>>>> b6baaf76a89b777919fd183b514af184827e0dd8
 });
