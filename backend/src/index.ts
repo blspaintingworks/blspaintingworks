@@ -79,10 +79,11 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '8h' }
     );
 
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 8 * 60 * 60 * 1000 // 8 hours
     });
 
@@ -115,7 +116,12 @@ app.post('/api/auth/logout', authenticateJWT, async (req: AuthenticatedRequest, 
     });
   }
 
-  res.clearCookie('token');
+  const isProd = process.env.NODE_ENV === 'production';
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax'
+  });
   return res.json({ message: 'Logged out successfully' });
 });
 
