@@ -44,6 +44,14 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use('/uploads', express.static(uploadsDir));
 
+const sanitizeUpdateData = (body: any) => {
+  const data = { ...body };
+  delete data.id;
+  delete data.createdAt;
+  delete data.updatedAt;
+  return data;
+};
+
 // --- MOCK DATABASE REDIRECT / 404 LOGS ---
 // In a production system, these might have tables. We'll store redirect rules in a local JSON config or DB.
 let redirects = [
@@ -207,7 +215,7 @@ app.get('/api/settings/theme', async (req, res) => {
 app.put('/api/settings/theme', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_THEME'), async (req, res) => {
   const settings = await prisma.themeSettings.update({
     where: { id: 'default' },
-    data: req.body
+    data: sanitizeUpdateData(req.body)
   });
   return res.json(settings);
 });
@@ -223,7 +231,7 @@ app.get('/api/settings/website', async (req, res) => {
 app.put('/api/settings/website', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_WEBSITE_SETTINGS'), async (req, res) => {
   const settings = await prisma.websiteSettings.update({
     where: { id: 'default' },
-    data: req.body
+    data: sanitizeUpdateData(req.body)
   });
   return res.json(settings);
 });
@@ -308,7 +316,7 @@ app.put('/api/services/reorder', authenticateJWT, requireRole(['ADMIN', 'EDITOR'
 });
 
 app.put('/api/services/:id', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_SERVICE'), async (req, res) => {
-  const data = { ...req.body };
+  const data = sanitizeUpdateData(req.body);
   if (data.imageUrlsJson && typeof data.imageUrlsJson === 'object') {
     data.imageUrlsJson = JSON.stringify(data.imageUrlsJson);
   }
@@ -361,7 +369,7 @@ app.put('/api/projects/reorder', authenticateJWT, requireRole(['ADMIN', 'EDITOR'
 });
 
 app.put('/api/projects/:id', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_PROJECT'), async (req, res) => {
-  const data = { ...req.body };
+  const data = sanitizeUpdateData(req.body);
   if (data.imageUrlsJson && typeof data.imageUrlsJson === 'object') {
     data.imageUrlsJson = JSON.stringify(data.imageUrlsJson);
   }
@@ -396,7 +404,7 @@ app.post('/api/testimonials', authenticateJWT, requireRole(['ADMIN', 'EDITOR']),
 app.put('/api/testimonials/:id', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_TESTIMONIAL'), async (req, res) => {
   const t = await prisma.testimonial.update({
     where: { id: req.params.id },
-    data: req.body
+    data: sanitizeUpdateData(req.body)
   });
   return res.json(t);
 });
@@ -436,7 +444,7 @@ app.put('/api/faqs/reorder', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), 
 app.put('/api/faqs/:id', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_FAQ'), async (req, res) => {
   const faq = await prisma.fAQ.update({
     where: { id: req.params.id },
-    data: req.body
+    data: sanitizeUpdateData(req.body)
   });
   return res.json(faq);
 });
@@ -475,7 +483,7 @@ app.post('/api/blogs', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logAct
 });
 
 app.put('/api/blogs/:id', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_BLOG'), async (req, res) => {
-  const data = { ...req.body };
+  const data = sanitizeUpdateData(req.body);
   if (data.tagsJson && typeof data.tagsJson === 'object') {
     data.tagsJson = JSON.stringify(data.tagsJson);
   }
@@ -665,7 +673,7 @@ app.post('/api/popups', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logAc
 app.put('/api/popups/:id', authenticateJWT, requireRole(['ADMIN', 'EDITOR']), logActivity('UPDATE_POPUP'), async (req, res) => {
   const p = await prisma.popup.update({
     where: { id: req.params.id },
-    data: req.body
+    data: sanitizeUpdateData(req.body)
   });
   return res.json(p);
 });
