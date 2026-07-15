@@ -1,0 +1,208 @@
+datasource db {
+<<<<<<< HEAD
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+=======
+  provider = "sqlite"
+  url      = "file:./dev.db"
+>>>>>>> b6baaf76a89b777919fd183b514af184827e0dd8
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         String     // "ADMIN" | "EDITOR" | "MANAGER"
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  blogPosts    BlogPost[]
+  auditLogs    AuditLog[]
+}
+
+model ThemeSettings {
+  id                String   @id @default("default")
+  primaryColor      String   @default("#1e293b")
+  secondaryColor    String   @default("#475569")
+  accentColor       String   @default("#f59e0b")
+  fontSans          String   @default("Inter")
+  fontHeading       String   @default("Outfit")
+  logoUrl           String   @default("")
+  faviconUrl        String   @default("")
+  loaderUrl         String   @default("")
+  buttonStyle       String   @default("rounded-md")
+  animationsEnabled Boolean  @default(true)
+  isDarkMode        Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+}
+
+model WebsiteSettings {
+  id           String   @id @default("default")
+  businessName String   @default("BLS Painting Works")
+  address      String   @default("123 Painter Lane, Deco City")
+  phone        String   @default("+1 (555) 019-2834")
+  whatsapp     String   @default("+15550192834")
+  email        String   @default("info@blspaintingworks.com")
+  gstNumber    String   @default("")
+  copyrightText String  @default("© 2026 BLS Painting Works. All rights reserved.")
+  footerText   String   @default("Premium painting solutions for residential and commercial spaces.")
+  googleMapEmbed String @default("")
+  businessHours  String @default("Mon-Sat: 8:00 AM - 6:00 PM, Sun: Closed")
+  socialLinks    String @default("{\"facebook\":\"\",\"instagram\":\"\",\"twitter\":\"\",\"linkedin\":\"\"}")
+  googlePlacesApiKey String @default("")
+  googlePlaceId     String @default("")
+  reviewsWidgetCode String @default("")
+  updatedAt    DateTime @updatedAt
+}
+
+model PageContent {
+  id          String   @id @default(uuid())
+  pageName    String   // e.g. "homepage"
+  sectionName String   // e.g. "hero", "about", "cta"
+  contentJson String   // Stringified JSON containing title, description, buttons, images
+  isEnabled   Boolean  @default(true)
+  orderIndex  Int      @default(0)
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  title        String
+  slug         String   @unique
+  description  String
+  content      String   // Detail page content
+  imageUrl     String
+  imageUrlsJson String   @default("[]")
+  iconName     String   @default("Paintbrush") // Lucide icon identifier
+  pricing      String   @default("")
+  isEnabled    Boolean  @default(true)
+  orderIndex   Int      @default(0)
+  seoTitle     String   @default("")
+  seoMetaDesc  String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id             String   @id @default(uuid())
+  title          String
+  slug           String   @unique
+  description    String
+  beforeImageUrl String   @default("")
+  afterImageUrl  String   @default("")
+  imageUrlsJson  String   @default("[]") // Array of additional images
+  albumName      String   @default("General")
+  location       String   @default("")
+  projectDate    String   @default("")
+  clientName     String   @default("")
+  isFeatured     Boolean  @default(false)
+  orderIndex     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Testimonial {
+  id                String   @id @default(uuid())
+  customerName      String
+  customerRole      String   @default("Homeowner")
+  customerPhotoUrl  String   @default("")
+  content           String
+  rating            Int      @default(5)
+  isFeatured        Boolean  @default(false)
+  isApproved        Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model FAQ {
+  id         String   @id @default(uuid())
+  question   String
+  answer     String
+  orderIndex Int      @default(0)
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model BlogPost {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  content          String   // Markdown or Rich HTML
+  summary          String
+  featuredImageUrl String
+  category         String   @default("General")
+  tagsJson         String   @default("[]")
+  authorId         String
+  author           User     @relation(fields: [authorId], references: [id])
+  status           String   @default("DRAFT") // "DRAFT" | "PUBLISHED" | "SCHEDULED"
+  publishedAt      DateTime @default(now())
+  seoTitle         String   @default("")
+  seoMetaDesc      String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model QuoteRequest {
+  id            String   @id @default(uuid())
+  name          String
+  email         String
+  phone         String
+  servicesJson  String   @default("[]")
+  message       String
+  status        String   @default("PENDING") // "PENDING" | "CONTACTED" | "QUOTATION_SENT" | "COMPLETED" | "CANCELLED"
+  internalNotes String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model GoogleReview {
+  id                String   @id @default(uuid())
+  reviewerName      String
+  reviewerPhotoUrl  String   @default("")
+  content           String
+  rating            Int      @default(5)
+  reviewDate        String
+  isApproved        Boolean  @default(true)
+  isFeatured        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+}
+
+model Popup {
+  id         String   @id @default(uuid())
+  name       String   // internal identifier
+  type       String   // "BANNER" | "FESTIVAL" | "EXIT" | "NEWSLETTER"
+  title      String
+  content    String
+  imageUrl   String   @default("")
+  ctaText    String   @default("")
+  ctaUrl     String   @default("")
+  isEnabled  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String   // e.g. "UPDATE_SERVICE", "CREATE_USER"
+  details   String
+  timestamp DateTime @default(now())
+}
+
+model MediaFile {
+  id          String   @id @default(uuid())
+  filename    String
+  filepath    String   // Local path or Cloudinary URL
+  filetype    String   // e.g. "image/png", "video/mp4", "application/pdf"
+  size        Int
+  isCompressed Boolean @default(false)
+  folder      String   @default("general")
+  createdAt   DateTime @default(now())
+}
