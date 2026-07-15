@@ -212,7 +212,10 @@ export default function AdminPage() {
       setEditingItem(null);
       setServiceForm({ title: '', slug: '', description: '', content: '', imageUrl: '', iconName: 'Paintbrush', pricing: '', isEnabled: true, imageUrlsJson: '[]' });
       loadAllCmsData();
-    } catch (err) {}
+      alert('Service saved successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save service. Check backend logs.');
+    }
   };
 
   const handleDeleteService = async (id: string) => {
@@ -220,7 +223,10 @@ export default function AdminPage() {
     try {
       await apiRequest(`/services/${id}`, { method: 'DELETE' });
       loadAllCmsData();
-    } catch (err) {}
+      alert('Service deleted successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete service.');
+    }
   };
 
   const handleSaveProject = async (e: React.FormEvent) => {
@@ -235,7 +241,10 @@ export default function AdminPage() {
       setEditingItem(null);
       setProjectForm({ title: '', slug: '', description: '', beforeImageUrl: '', afterImageUrl: '', imageUrlsJson: '[]', albumName: 'General', location: '', projectDate: '', clientName: '', isFeatured: false });
       loadAllCmsData();
-    } catch (err) {}
+      alert('Project saved successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save project.');
+    }
   };
 
   const handleDeleteProject = async (id: string) => {
@@ -243,7 +252,10 @@ export default function AdminPage() {
     try {
       await apiRequest(`/projects/${id}`, { method: 'DELETE' });
       loadAllCmsData();
-    } catch (err) {}
+      alert('Project deleted successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete project.');
+    }
   };
 
   const handleSaveBlog = async (e: React.FormEvent) => {
@@ -258,7 +270,10 @@ export default function AdminPage() {
       setEditingItem(null);
       setBlogForm({ title: '', slug: '', content: '', summary: '', featuredImageUrl: '', category: 'General', tagsJson: '[]', status: 'PUBLISHED', seoTitle: '', seoMetaDesc: '' });
       loadAllCmsData();
-    } catch (err) {}
+      alert('Blog post saved successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save blog post.');
+    }
   };
 
   const handleDeleteBlog = async (id: string) => {
@@ -266,7 +281,10 @@ export default function AdminPage() {
     try {
       await apiRequest(`/blogs/${id}`, { method: 'DELETE' });
       loadAllCmsData();
-    } catch (err) {}
+      alert('Blog post deleted successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete blog post.');
+    }
   };
 
   // Quote Request / Lead Status & Notes
@@ -293,7 +311,10 @@ export default function AdminPage() {
       setEditingItem(null);
       setPopupForm({ name: '', type: 'BANNER', title: '', content: '', imageUrl: '', ctaText: '', ctaUrl: '', isEnabled: false });
       loadAllCmsData();
-    } catch (err) {}
+      alert('Popup offer saved successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save popup offer.');
+    }
   };
 
   const handleTogglePopup = async (id: string, isEnabled: boolean) => {
@@ -305,7 +326,9 @@ export default function AdminPage() {
         body: JSON.stringify({ ...target, isEnabled })
       });
       loadAllCmsData();
-    } catch (err) {}
+    } catch (err: any) {
+      alert(err.message || 'Failed to toggle popup.');
+    }
   };
 
   // Google reviews approval toggle
