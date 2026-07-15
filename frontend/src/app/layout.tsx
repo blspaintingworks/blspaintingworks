@@ -45,7 +45,9 @@ async function getThemeAndSettings() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { site } = await getThemeAndSettings();
+  const { theme, site } = await getThemeAndSettings();
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const logo = theme.logoUrl ? `${BACKEND_URL}${theme.logoUrl}` : '/favicon.ico';
   return {
     title: {
       default: site.businessName,
@@ -53,6 +55,11 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: 'Premium interior and exterior painting services for residential and commercial spaces.',
     metadataBase: new URL('http://localhost:3000'),
+    icons: {
+      icon: logo,
+      shortcut: logo,
+      apple: logo,
+    },
     openGraph: {
       title: site.businessName,
       description: 'Premium painting contractors',
@@ -69,6 +76,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const { theme } = await getThemeAndSettings();
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const logo = theme.logoUrl ? `${BACKEND_URL}${theme.logoUrl}` : '/favicon.ico';
 
   // Create style element injection to drive Tailwind configuration
   const cssVariables = `
@@ -88,6 +97,9 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href={`https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap`} rel="stylesheet" />
         <style dangerouslySetInnerHTML={{ __html: cssVariables }} />
+        <link rel="icon" href={logo} />
+        <link rel="shortcut icon" href={logo} />
+        <link rel="apple-touch-icon" href={logo} />
       </head>
       <body className="antialiased min-h-screen flex flex-col">
         {children}
