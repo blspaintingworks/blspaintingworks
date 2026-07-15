@@ -521,29 +521,29 @@ export default function PublicHomepage() {
                               }
                             }}
                           >
-                            {/* After image (base) */}
+                            {/* Before image (base) */}
                             <img 
-                              src={getImageUrl(sliderProject.afterImageUrl)} 
-                              alt="After Finish"
+                              src={getImageUrl(sliderProject.beforeImageUrl)} 
+                              alt="Before Preparation"
                               className="absolute inset-0 w-full h-full object-cover"
                             />
                             <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-bold text-white z-10">
-                              AFTER
+                              BEFORE
                             </div>
 
-                            {/* Before image (overlay) */}
+                            {/* After image (overlay) */}
                             <div 
                               className="absolute inset-y-0 left-0 overflow-hidden z-10"
                               style={{ width: `${beforeAfterHover}%` }}
                             >
                               <img 
-                                src={getImageUrl(sliderProject.beforeImageUrl)} 
-                                alt="Before Preparation"
+                                src={getImageUrl(sliderProject.afterImageUrl)} 
+                                alt="After Finish"
                                 className="absolute inset-y-0 left-0 h-full object-cover max-w-none"
                                 style={{ width: `${sliderWidth || 600}px` }}
                               />
                               <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-bold text-white z-10">
-                                BEFORE
+                                AFTER
                               </div>
                             </div>
 
