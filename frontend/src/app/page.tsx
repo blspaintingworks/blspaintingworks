@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
-  Home, Paintbrush, Briefcase, ChevronDown, Check, Star, 
+  Home, Paintbrush, Briefcase, ChevronDown, Check, 
   MapPin, Calendar, User, ArrowRight, Clock, MessageSquare,
-  Sparkles, CheckCircle2, ChevronRight, X, Volume2
+  Sparkles, CheckCircle2, ChevronRight, X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { BACKEND_URL } from '@/utils/api';
@@ -74,7 +74,7 @@ export default function PublicHomepage() {
   const [services, setServices] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
-  const [googleReviews, setGoogleReviews] = useState<any[]>([]);
+
   const [faqs, setFaqs] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [website, setWebsite] = useState<any>(null);
@@ -152,7 +152,7 @@ export default function PublicHomepage() {
           if (data.services) setServices(data.services);
           if (data.projects) setProjects(data.projects);
           if (data.testimonials) setTestimonials(data.testimonials);
-          if (data.googleReviews) setGoogleReviews(data.googleReviews);
+
           if (data.faqs) setFaqs(data.faqs);
           if (data.blogs) setBlogs(data.blogs);
           if (data.website) setWebsite(data.website);
@@ -230,21 +230,7 @@ export default function PublicHomepage() {
            `📝 *సందేశం/వివరాలు (Message):* ${translatedMsg}`;
   };
 
-  const speakText = (text: string) => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      const isTelugu = /[\u0c00-\u0c7f]/.test(text);
-      if (isTelugu) {
-        utterance.lang = 'te-IN';
-      } else {
-        utterance.lang = 'en-IN';
-      }
-      window.speechSynthesis.speak(utterance);
-    } else {
-      alert('Your browser does not support read-aloud voice output.');
-    }
-  };
+
 
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
