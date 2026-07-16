@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [heroContent, setHeroContent] = useState<any>(null);
   const [aboutContent, setAboutContent] = useState<any>(null);
   const [pageContentId, setPageContentId] = useState<string>('');
+  const [aboutContentId, setAboutContentId] = useState<string>('');
   const [galleryContentId, setGalleryContentId] = useState<string>('');
   const [sliderBeforeUrl, setSliderBeforeUrl] = useState<string>('/uploads/general/BEFORE.png');
   const [sliderAfterUrl, setSliderAfterUrl] = useState<string>('/uploads/general/AFTER.png');
