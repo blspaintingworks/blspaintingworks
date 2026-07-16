@@ -50,10 +50,22 @@ export async function generateMetadata(): Promise<Metadata> {
   const logo = theme.logoUrl ? `${BACKEND_URL}${theme.logoUrl}` : '/favicon.ico';
   return {
     title: {
-      default: site.businessName,
+      default: `${site.businessName} | Best Painting Services in Nalgonda, Telangana`,
       template: `%s | ${site.businessName}`
     },
-    description: 'Premium interior and exterior painting services for residential and commercial spaces.',
+    description: 'BLS Painting Works offers the best professional interior & exterior painting services in Nalgonda, Telangana, and surrounding districts. Top house painting contractors near you.',
+    keywords: [
+      'painter near me',
+      'best painters in Telangana',
+      'painters in Nalgonda',
+      'painting services in Nalgonda',
+      'house painters in Telangana',
+      'BLS Painting Works Nalgonda',
+      'wall painters Nalgonda',
+      'professional painting contractors Telangana',
+      'house painting services Nalgonda',
+      'exterior painters Telangana'
+    ],
     metadataBase: new URL('http://localhost:3000'),
     icons: {
       icon: logo,
@@ -61,8 +73,8 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: logo,
     },
     openGraph: {
-      title: site.businessName,
-      description: 'Premium painting contractors',
+      title: `${site.businessName} | Best Painters in Nalgonda & Telangana`,
+      description: 'Premium interior & exterior painting contractors serving Nalgonda, Telangana, and surrounding districts. Get a free quote today!',
       url: 'https://blspaintingworks.com',
       siteName: site.businessName,
       type: 'website'
@@ -90,6 +102,61 @@ export default async function RootLayout({
     }
   `;
 
+  // Local Business Schema JSON-LD for Local Search Engine Optimization
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "HomeAndConstructionBusiness",
+    "name": "BLS Painting Works",
+    "alternateName": "BLS Painters Nalgonda",
+    "description": "Professional house and commercial painting contractors in Nalgonda, Telangana. Rated the best painters in Telangana for interior, exterior, and texture wall coatings.",
+    "url": "https://blspaintingworks.com",
+    "logo": logo,
+    "telephone": "+919505411273",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Nalgonda",
+      "addressRegion": "Telangana",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "17.0575",
+      "longitude": "79.2684"
+    },
+    "areaServed": [
+      {
+        "@type": "AdministrativeArea",
+        "name": "Nalgonda"
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": "Telangana"
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": "Suryapet"
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": "Yadadri Bhuvanagiri"
+      }
+    ],
+    "priceRange": "$$",
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "08:00",
+      "closes": "18:00"
+    }
+  };
+
   return (
     <html lang="en">
       <head>
@@ -100,6 +167,10 @@ export default async function RootLayout({
         <link rel="icon" href={logo} />
         <link rel="shortcut icon" href={logo} />
         <link rel="apple-touch-icon" href={logo} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className="antialiased min-h-screen flex flex-col">
         {children}

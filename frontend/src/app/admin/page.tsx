@@ -38,7 +38,9 @@ export default function AdminPage() {
   const [heroContent, setHeroContent] = useState<any>(null);
   const [aboutContent, setAboutContent] = useState<any>(null);
   const [pageContentId, setPageContentId] = useState<string>('');
-  const [aboutContentId, setAboutContentId] = useState<string>('');
+  const [galleryContentId, setGalleryContentId] = useState<string>('');
+  const [sliderBeforeUrl, setSliderBeforeUrl] = useState<string>('/uploads/general/BEFORE.png');
+  const [sliderAfterUrl, setSliderAfterUrl] = useState<string>('/uploads/general/AFTER.png');
 
   // Form states for adding/editing items
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -115,6 +117,15 @@ export default function AdminPage() {
         if (aboutSec) {
           setAboutContentId(aboutSec.id);
           setAboutContent(JSON.parse(aboutSec.contentJson));
+        }
+        const gallerySec = data.find((s: any) => s.sectionName === 'gallery');
+        if (gallerySec) {
+          setGalleryContentId(gallerySec.id);
+          try {
+            const parsed = JSON.parse(gallerySec.contentJson);
+            if (parsed.sliderBeforeUrl) setSliderBeforeUrl(parsed.sliderBeforeUrl);
+            if (parsed.sliderAfterUrl) setSliderAfterUrl(parsed.sliderAfterUrl);
+          } catch (e) {}
         }
       })
       .catch(() => {});
@@ -284,6 +295,33 @@ export default function AdminPage() {
       alert('Blog post deleted successfully!');
     } catch (err: any) {
       alert(err.message || 'Failed to delete blog post.');
+    }
+  };
+
+  const handleSaveSliderImages = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!galleryContentId) {
+      alert('Gallery page content section not loaded yet.');
+      return;
+    }
+    try {
+      await apiRequest(`/page-content/${galleryContentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          pageName: 'homepage',
+          sectionName: 'gallery',
+          orderIndex: 2,
+          isEnabled: true,
+          contentJson: JSON.stringify({
+            sliderBeforeUrl,
+            sliderAfterUrl
+          })
+        })
+      });
+      alert('Slider images saved successfully!');
+      loadAllCmsData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to save slider images.');
     }
   };
 
@@ -530,6 +568,7 @@ export default function AdminPage() {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
     { id: 'hero', name: 'Homepage Editor', icon: <Layers className="h-4 w-4" /> },
+    { id: 'slider', name: 'Before/After Slider', icon: <Image className="h-4 w-4" /> },
     { id: 'popups', name: 'Offers / Popups', icon: <MessageSquare className="h-4 w-4" /> },
     { id: 'services', name: 'Services Manager', icon: <Layers className="h-4 w-4" /> },
     { id: 'projects', name: 'Gallery Manager', icon: <Image className="h-4 w-4" /> },
@@ -1706,6 +1745,135 @@ export default function AdminPage() {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* Before/After Slider Tab */}
+        {activeTab === 'slider' && (
+          <div className="space-y-8 animate-fadeIn">
+            <div>
+              <h1 className="font-heading font-bold text-3xl text-slate-800">Before & After Slider Manager</h1>
+              <p className="text-slate-500 text-sm mt-1">Directly configure the comparison images displayed in the interactive slider on your homepage.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Form Config */}
+              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
+                <h2 className="font-heading font-semibold text-lg text-slate-800">Configure Slider Images</h2>
+                
+                <form onSubmit={handleSaveSliderImages} className="space-y-6">
+                  {/* Before Image URL */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Before Image URL (Slider Prep Image)</label>
+                    <input
+                      type="text"
+                      required
+                      value={sliderBeforeUrl}
+                      onChange={(e) => setSliderBeforeUrl(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-secondary focus:bg-white transition-all"
+                    />
+                    
+                    <div className="mt-2 space-y-1">
+                      <label className="text-[10px] text-slate-400 uppercase font-bold">Or select from Media Library:</label>
+                      <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-100">
+                        {mediaFiles.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => setSliderBeforeUrl(m.filepath)}
+                            className={`px-2 py-1 bg-white hover:bg-secondary hover:text-white rounded border border-slate-200 text-[10px] font-mono truncate max-w-[125px] transition-colors ${sliderBeforeUrl === m.filepath ? 'bg-secondary text-white border-secondary' : 'text-slate-600'}`}
+                          >
+                            {m.filename}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* After Image URL */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">After Image URL (Slider Finish Image)</label>
+                    <input
+                      type="text"
+                      required
+                      value={sliderAfterUrl}
+                      onChange={(e) => setSliderAfterUrl(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-secondary focus:bg-white transition-all"
+                    />
+                    
+                    <div className="mt-2 space-y-1">
+                      <label className="text-[10px] text-slate-400 uppercase font-bold">Or select from Media Library:</label>
+                      <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-100">
+                        {mediaFiles.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => setSliderAfterUrl(m.filepath)}
+                            className={`px-2 py-1 bg-white hover:bg-secondary hover:text-white rounded border border-slate-200 text-[10px] font-mono truncate max-w-[125px] transition-colors ${sliderAfterUrl === m.filepath ? 'bg-secondary text-white border-secondary' : 'text-slate-600'}`}
+                          >
+                            {m.filename}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-secondary text-white font-bold rounded-lg shadow-md hover:bg-opacity-95 transition-opacity"
+                  >
+                    Save Slider Configuration
+                  </button>
+                </form>
+              </div>
+
+              {/* Visual Preview */}
+              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                  <h2 className="font-heading font-semibold text-lg text-slate-800">Visual Live Preview</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Below is a preview of the selected before & after images.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">BEFORE (Base)</span>
+                    <div className="aspect-[4/3] w-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 relative">
+                      {sliderBeforeUrl ? (
+                        <img 
+                          src={sliderBeforeUrl.startsWith('/uploads/') ? `${BACKEND_URL}${sliderBeforeUrl}` : sliderBeforeUrl} 
+                          alt="Before Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400 italic">No image selected</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">AFTER (Overlay)</span>
+                    <div className="aspect-[4/3] w-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 relative">
+                      {sliderAfterUrl ? (
+                        <img 
+                          src={sliderAfterUrl.startsWith('/uploads/') ? `${BACKEND_URL}${sliderAfterUrl}` : sliderAfterUrl} 
+                          alt="After Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400 italic">No image selected</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-secondary/5 rounded-xl border border-secondary/15 flex items-start space-x-2 text-xs text-slate-600">
+                  <span>💡</span>
+                  <p className="leading-relaxed">
+                    Once saved, the homepage comparison slider will dynamically update and swap these images instantly. You can upload new images using the <strong>Media Library</strong> tab.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

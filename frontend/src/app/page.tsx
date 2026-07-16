@@ -79,6 +79,7 @@ export default function PublicHomepage() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [website, setWebsite] = useState<any>(null);
   const [popup, setPopup] = useState<any>(null);
+  const [galleryContent, setGalleryContent] = useState<any>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [sectionsOrder, setSectionsOrder] = useState<string[]>([
     'hero', 'about', 'gallery', 'services', 'testimonials', 'faq', 'contact'
@@ -143,6 +144,9 @@ export default function PublicHomepage() {
 
             const aboutSec = data.pageContents.find((s: any) => s.sectionName === 'about');
             if (aboutSec) setAbout(JSON.parse(aboutSec.contentJson));
+
+            const gallerySec = data.pageContents.find((s: any) => s.sectionName === 'gallery');
+            if (gallerySec) setGalleryContent(JSON.parse(gallerySec.contentJson));
           }
 
           if (data.services) setServices(data.services);
@@ -506,8 +510,8 @@ export default function PublicHomepage() {
 
                     {/* Before & After Interactive Slider */}
                     {(() => {
-                      const sliderProject = projects.find(p => p.beforeImageUrl && p.afterImageUrl);
-                      if (!sliderProject) return null;
+                      const beforeUrl = galleryContent?.sliderBeforeUrl || '/uploads/general/BEFORE.png';
+                      const afterUrl = galleryContent?.sliderAfterUrl || '/uploads/general/AFTER.png';
                       return (
                         <div className="max-w-3xl mx-auto space-y-4">
                           <h3 className="text-center font-heading font-bold text-xl text-slate-900">Before & After Showcase</h3>
@@ -523,7 +527,7 @@ export default function PublicHomepage() {
                           >
                             {/* Before image (base) */}
                             <img 
-                              src={getImageUrl(sliderProject.beforeImageUrl)} 
+                              src={getImageUrl(beforeUrl)} 
                               alt="Before Preparation"
                               className="absolute inset-0 w-full h-full object-cover"
                             />
@@ -531,25 +535,23 @@ export default function PublicHomepage() {
                               BEFORE
                             </div>
 
-                            {/* After image (overlay) */}
+                            {/* After image (overlay with clip-path) */}
+                            <img 
+                              src={getImageUrl(afterUrl)} 
+                              alt="After Finish"
+                              className="absolute inset-0 w-full h-full object-cover z-20 pointer-events-none"
+                              style={{ clipPath: `polygon(0 0, ${beforeAfterHover}% 0, ${beforeAfterHover}% 100%, 0 100%)` }}
+                            />
                             <div 
-                              className="absolute inset-y-0 left-0 overflow-hidden z-10"
-                              style={{ width: `${beforeAfterHover}%` }}
+                              className="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-bold text-white z-30 pointer-events-none"
+                              style={{ opacity: beforeAfterHover > 10 ? 1 : 0, transition: 'opacity 0.2s' }}
                             >
-                              <img 
-                                src={getImageUrl(sliderProject.afterImageUrl)} 
-                                alt="After Finish"
-                                className="absolute inset-y-0 left-0 h-full object-cover max-w-none"
-                                style={{ width: `${sliderWidth || 600}px` }}
-                              />
-                              <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-bold text-white z-10">
-                                AFTER
-                              </div>
+                              AFTER
                             </div>
 
                             {/* Splitter bar */}
                             <div 
-                              className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-20"
+                              className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-30"
                               style={{ left: `${beforeAfterHover}%` }}
                             >
                               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white text-slate-800 rounded-full shadow-xl flex items-center justify-center font-bold text-sm">
